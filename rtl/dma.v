@@ -2,6 +2,7 @@
 module dma(
   input clk, // 4 x CPU speed ?
   input rdy,
+  output irq_dma,
   input [7:0] ctrl,
   input [15:0] src_addr,
   input [15:0] dst_addr,
@@ -17,6 +18,7 @@ module dma(
 reg [11:0] queue;
 reg [12:0] addr_a, addr_b;
 reg started;
+assign irq_dma = 1'b1;
 
 assign sel = dst_addr[14];
 assign busy = state != DONE;

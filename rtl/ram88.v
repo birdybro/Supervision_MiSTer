@@ -12,13 +12,6 @@ module ram88 (
 
 reg [7:0] memory[8191:0] /*verilator public_flat_rd*/;
 
-`ifdef XILINX_ISIM
-  reg [12:0] ii;
-  initial begin
-    for (ii = 0; ii < 8191; ii = ii + 1) memory[ii] = 0;
-  end
-`endif
-
 always @(posedge clk) begin
   if (~cs) begin
     if (~we) memory[addr] <= din;

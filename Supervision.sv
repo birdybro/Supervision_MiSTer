@@ -417,15 +417,19 @@ always @(posedge clk_sys)
 
 
 // write to dma registers
+//CAUTION:  This DMA can only be used to move data from WRAM/cartridge ROM to VRAM!  
+//Attempting to move data to a non-VRAM address will cause serious problems to occur. 
+//See my findings at the bottom of the document in the DMA timing section.
+
 always @(posedge clk_sys)
   if (dma_cs && cpu_we)
     case (AB[2:0])
-      3'h0: dma_src_lo <= cpu_dout;
-      3'h1: dma_src_hi <= cpu_dout;
-      3'h2: dma_dst_lo <= cpu_dout;
-      3'h3: dma_dst_hi <= cpu_dout;
-      3'h4: dma_length <= cpu_dout;
-      3'h5: dma_ctrl   <= cpu_dout;
+      3'h0: dma_src_lo <= cpu_dout;//DMA Source low
+      3'h1: dma_src_hi <= cpu_dout;//DMA Source high
+      3'h2: dma_dst_lo <= cpu_dout;//DMA Destination low
+      3'h3: dma_dst_hi <= cpu_dout;//DMA Destination high
+      3'h4: dma_length <= cpu_dout;//DMA Length
+      3'h5: dma_ctrl   <= cpu_dout;//DMA Control
       default:
         dma_ctrl <= 8'd0;
     endcase
@@ -496,6 +500,7 @@ ram88 vram(
 dma dma(
   .clk(clk_sys),
   .rdy(dma_rdy),
+  .irq_dma(irq_dma),
   .ctrl(dma_ctrl),
   .src_addr({ dma_src_hi, dma_src_lo }),
   .dst_addr({ dma_dst_hi, dma_dst_lo }),
@@ -531,10 +536,12 @@ video video(
   .clk(clk_vid),
   .ce_pxl(CE_PIXEL),
   .ce(sys_ctl[3]),
+  .white(white),
   .lcd_xsize(lcd_xsize),
   .lcd_ysize(lcd_ysize),
   .lcd_xscroll(lcd_xscroll),
   .lcd_yscroll(lcd_yscroll),
+  .lcd_pulse(lcd_pulse),
   .addr(lcd_addr),
   .data(lcd_din),
   .hsync(hsync),
