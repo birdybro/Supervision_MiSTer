@@ -11,6 +11,7 @@ module video(
   input [7:0] lcd_ysize,
   input [7:0] lcd_xscroll,
   input [7:0] lcd_yscroll,
+  output 			lcd_pulse,
 
   // to/from vram
   output [12:0] addr,
